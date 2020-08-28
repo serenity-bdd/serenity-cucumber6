@@ -33,8 +33,8 @@ repositories {
 ext {
     bintrayBaseUrl = 'https://api.bintray.com/maven'
     bintrayRepository = 'maven'
-    bintrayPackage = 'serenity-cucumber5'
-    projectDescription = 'Serenity Cucumber 5.x integration'
+    bintrayPackage = 'serenity-cucumber6'
+    projectDescription = 'Serenity Cucumber 6.x integration'
 
     if (!project.hasProperty("bintrayUsername")) {
         bintrayUsername = 'wakaleo'
@@ -164,14 +164,14 @@ publishing {
             pom.withXml {
                 asNode().children().last() + {
                     resolveStrategy = Closure.DELEGATE_FIRST
-                    name 'serenity-cucumber5'
+                    name 'serenity-cucumber6'
                     description 'Serenity Cucumber Integration'
 
-                    url 'https://github.com/serenity-bdd/serenity-cucumber5'
+                    url 'https://github.com/serenity-bdd/serenity-cucumber6'
                     scm {
-                        url 'scm:git:git@github.com:serenity-bdd/serenity-cucumber5.git'
-                        connection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber5.git'
-                        developerConnection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber5.git'
+                        url 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
+                        connection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
+                        developerConnection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6f.git'
                     }
                     licenses {
                         license {
@@ -217,16 +217,16 @@ bintray {
     publish = true
     pkg {
         repo = 'maven'
-        name = 'serenity-cucumber5'
+        name = 'serenity-cucumber6'
         userOrg = 'serenity'
         desc = 'Serenity Cucumber integration'
         licenses = ['Apache-2.0']
         labels = ['serenity', 'bdd', 'cucumber']
-        vcsUrl = 'https://github.com/serenity-bdd/serenity-cucumber5.git'
+        vcsUrl = 'https://github.com/serenity-bdd/serenity-cucumber6.git'
 
         version {
             name = nextVersion
-            desc = "Serenity Cucumber 5 integration version ${nextVersion}"
+            desc = "Serenity Cucumber 6 integration version ${nextVersion}"
             released = new Date()
             vcsTag = "v${nextVersion}"
         }
