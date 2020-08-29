@@ -5,7 +5,11 @@ package cucumber.runtime;
 import io.cucumber.core.backend.ObjectFactory;
 import io.cucumber.core.exception.CucumberException;
 import net.serenitybdd.core.Serenity;
+import net.serenitybdd.core.annotations.events.BeforeScenario;
+import net.serenitybdd.core.lifecycle.LifecycleRegister;
+import net.thucydides.core.model.TestOutcome;
 import net.thucydides.core.pages.Pages;
+import net.thucydides.core.steps.StepEventBus;
 import net.thucydides.core.webdriver.ThucydidesWebDriverSupport;
 
 import java.lang.reflect.Constructor;
@@ -69,6 +73,11 @@ public class SerenityObjectFactory implements ObjectFactory {
             throw new CucumberException(String.format("Failed to instantiate %s - this class doesn't have an empty or a page enabled constructor\"", type), e);
         }
         Serenity.initializeWithNoStepListener(instance).throwExceptionsImmediately();
+
+        TestOutcome newTestOutcome = StepEventBus.getEventBus().getBaseStepListener().getCurrentTestOutcome();
+        LifecycleRegister.register(instance);
+        LifecycleRegister.invokeMethodsAnnotatedBy(BeforeScenario.class, newTestOutcome);
+
         return instance;
     }
 
