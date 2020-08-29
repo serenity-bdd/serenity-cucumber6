@@ -45,6 +45,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static io.cucumber.junit.FileNameCompatibleNames.uniqueSuffix;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static net.thucydides.core.ThucydidesSystemProperty.*;
 
@@ -62,6 +64,7 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
 
     private final List<Feature> features;
     private final Plugins plugins;
+    private final CucumberExecutionContext context;
 
     private boolean multiThreadingAssumed = false;
 
@@ -143,9 +146,17 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
         BackendSupplier backendSupplier = new BackendServiceLoader(clazz::getClassLoader, objectFactorySupplier);
         TypeRegistryConfigurerSupplier typeRegistryConfigurerSupplier = new ScanningTypeRegistryConfigurerSupplier(classLoader, runtimeOptions);
         ThreadLocalRunnerSupplier runnerSupplier = new ThreadLocalRunnerSupplier(runtimeOptions, bus, backendSupplier, objectFactorySupplier, typeRegistryConfigurerSupplier);
+        this.context = new CucumberExecutionContext(bus, exitStatus, runnerSupplier);
         Predicate<Pickle> filters = new Filters(runtimeOptions);
+
+        Map<Optional<String>, List<Feature>> groupedByName = features.stream()
+                .collect(groupingBy(Feature::getName));
+
         children = features.stream()
-                .map(feature -> FeatureRunner.create(feature, filters, runnerSupplier, junitOptions))
+                .map(feature -> {
+                    Integer uniqueSuffix = uniqueSuffix(groupedByName, feature, Feature::getName);
+                    return FeatureRunner.create(feature, uniqueSuffix,filters, runnerSupplier, junitOptions);
+                })
                 .filter(runner -> !runner.isEmpty())
                 .collect(toList());
     }
@@ -243,12 +254,15 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
             } else {
                 plugins.setEventBusOnEventListenerPlugins(bus);
             }
-            bus.send(new TestRunStarted(bus.getInstant()));
-            for (Feature feature : features) {
-                bus.send(new TestSourceRead(bus.getInstant(), feature.getUri(), feature.getSource()));
+
+            context.startTestRun();
+            features.forEach(context::beforeFeature);
+
+            try {
+                runFeatures.evaluate();
+            } finally {
+                context.finishTestRun();
             }
-            runFeatures.evaluate();
-            bus.send(new TestRunFinished(bus.getInstant()));
         }
     }
 
