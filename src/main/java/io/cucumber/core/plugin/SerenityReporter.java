@@ -42,7 +42,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -173,7 +176,17 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     }
 
     private String relativeUriFrom(URI fullPathUri) {
-        String pathURIAsString = fullPathUri.toString();
+        boolean useDecodedURI = systemConfiguration.getEnvironmentVariables().getPropertyAsBoolean("use.decoded.url", false);
+        String pathURIAsString;
+        if (useDecodedURI) {
+            try {
+                pathURIAsString = URLDecoder.decode(fullPathUri.toString(), StandardCharsets.UTF_8.name());
+            } catch (UnsupportedEncodingException e) {
+                pathURIAsString = fullPathUri.toString();
+            }
+        } else {
+            pathURIAsString = fullPathUri.toString();
+        }
         String featuresRoot = File.separatorChar + FEATURES_ROOT_PATH + File.separatorChar;
         if (pathURIAsString.contains(featuresRoot)) {
             return pathURIAsString.substring(pathURIAsString.lastIndexOf(featuresRoot) + FEATURES_ROOT_PATH.length() + 2);
