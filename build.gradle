@@ -122,6 +122,7 @@ dependencies {
         exclude module: "slf4j-api"
     }
     testCompile("com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}")
+    testCompile "io.cucumber:cucumber-java8:${cucumberJVMVersion}"
 }
 
 jar {
