@@ -502,4 +502,17 @@ Feature: A simple feature with tags
         and:
         testOutcome.getTestSource() == TestSourceType.TEST_SOURCE_CUCUMBER.getValue()
     }
+
+    def "should run steps defined as lambdas"() {
+        given:
+        def runtime = serenityRunnerForCucumberTestRunner(SimpleScenarioWithLambdaSteps.class, outputDirectory);
+
+        when:
+        runtime.run();
+        def recordedTestOutcomes = new TestOutcomeLoader().forFormat(OutcomeFormat.JSON).loadFrom(outputDirectory).sort{it.name};
+        def testOutcome = recordedTestOutcomes[0]
+
+        then:
+        testOutcome.result == TestResult.SUCCESS
+    }
 }
