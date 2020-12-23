@@ -1,23 +1,15 @@
 package io.cucumber.core.plugin;
 
 import com.google.common.collect.Lists;
-
-import io.cucumber.messages.Messages;
 import io.cucumber.messages.Messages.GherkinDocument.Feature;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Background;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow.TableCell;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.*;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario.Examples;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Tag;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.TagOrBuilder;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;;
-
+import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow.TableCell;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.plugin.event.*;
 import io.cucumber.tagexpressions.Expression;
-import io.cucumber.tagexpressions.TagExpressionParser;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.core.SerenityListeners;
 import net.serenitybdd.core.SerenityReports;
@@ -26,7 +18,6 @@ import net.serenitybdd.cucumber.formatting.ScenarioOutlineDescription;
 import net.serenitybdd.cucumber.util.PathUtils;
 import net.serenitybdd.cucumber.util.StepDefinitionAnnotationReader;
 import net.thucydides.core.guice.Injectors;
-import net.thucydides.core.model.DataTable;
 import net.thucydides.core.model.TestStep;
 import net.thucydides.core.model.*;
 import net.thucydides.core.model.screenshots.StepDefinitionAnnotations;
@@ -36,12 +27,12 @@ import net.thucydides.core.steps.*;
 import net.thucydides.core.util.Inflector;
 import net.thucydides.core.webdriver.Configuration;
 import net.thucydides.core.webdriver.ThucydidesWebDriverSupport;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.internal.AssumptionViolatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -70,7 +61,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
 
     private final List<BaseStepListener> baseStepListeners;
 
-    private final static String FEATURES_ROOT_PATH = "features";
+    private final static String FEATURES_ROOT_PATH = "/features/";
 
     private FeatureFileLoader featureLoader = new FeatureFileLoader();
 
@@ -187,9 +178,9 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
         } else {
             pathURIAsString = fullPathUri.toString();
         }
-        String featuresRoot = File.separatorChar + FEATURES_ROOT_PATH + File.separatorChar;
-        if (pathURIAsString.contains(featuresRoot)) {
-            return pathURIAsString.substring(pathURIAsString.lastIndexOf(featuresRoot) + FEATURES_ROOT_PATH.length() + 2);
+
+        if (pathURIAsString.contains(FEATURES_ROOT_PATH)) {
+            return StringUtils.substringAfterLast(pathURIAsString, FEATURES_ROOT_PATH);
         } else {
             return pathURIAsString;
         }
@@ -198,8 +189,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     private Optional<Feature> featureFrom(URI featureFileUri) {
 
         LOGGER.info("Running feature from " + featureFileUri.toString());
-        String featuresRoot = File.separatorChar + FEATURES_ROOT_PATH + File.separatorChar;
-        if(!featureFileUri.toString().contains(featuresRoot)) {
+        if (!featureFileUri.toString().contains(FEATURES_ROOT_PATH)) {
             LOGGER.warn("Feature from " + featureFileUri + " is not under the 'features' directory. Requirements report will not be correctly generated!");
         }
         String defaultFeatureId = PathUtils.getAsFile(featureFileUri).getName().replace(".feature", "");
