@@ -2,7 +2,6 @@ package io.cucumber.core.plugin;
 
 import com.google.common.collect.Lists;
 
-import io.cucumber.messages.Messages;
 import io.cucumber.messages.Messages.GherkinDocument.Feature;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Background;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario;
@@ -10,14 +9,12 @@ import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow.TableCell;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario.Examples;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Tag;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.TagOrBuilder;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;;
 
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.plugin.event.*;
 import io.cucumber.tagexpressions.Expression;
-import io.cucumber.tagexpressions.TagExpressionParser;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.core.SerenityListeners;
 import net.serenitybdd.core.SerenityReports;
@@ -241,7 +238,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
         setStepEventBus(featurePath);
 
         String scenarioName = event.getTestCase().getName();
-        TestSourcesModel.AstNode astNode = featureLoader.getAstNode(getContext().currentFeaturePath(), event.getTestCase().getLine());
+        TestSourcesModel.AstNode astNode = featureLoader.getAstNode(getContext().currentFeaturePath(), event.getTestCase().getLocation().getLine());
 
         Optional<Feature> currentFeature = featureFrom(featurePath);
 
@@ -260,18 +257,46 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
                             getContext().currentScenarioOutline().getName(),
                             getContext().currentScenarioOutline().getExamplesList());
                 }
-                startOfScenarioLifeCycle(currentFeature.get(), scenarioName, getContext().currentScenarioDefinition, event.getTestCase().getLine());
+                startOfScenarioLifeCycle(currentFeature.get(), scenarioName, getContext().currentScenarioDefinition, event.getTestCase().getLocation().getLine());
                 getContext().currentScenario = scenarioIdFrom(currentFeature.get().getName(), TestSourcesModel.convertToId(getContext().currentScenarioDefinition.getName()));
             } else {
                 if (getContext().isAScenarioOutline()) {
-                    startExample(event.getTestCase().getLine());
+                    startExample(event.getTestCase().getLocation().getLine());
                 }
             }
             Background background = TestSourcesModel.getBackgroundForTestCase(astNode);
             if (background != null) {
                 handleBackground(background);
             }
+
+            Feature.FeatureChild.Rule rule = getRuleForTestCase(astNode);
+            if(rule != null) {
+                getContext().stepEventBus().setRule(rule.getName());
+            }
         }
+    }
+
+    private Feature.FeatureChild.Rule getRuleForTestCase(TestSourcesModel.AstNode astNode) {
+        Feature feature = getFeatureForTestCase(astNode);
+        Scenario existingScenario = TestSourcesModel.getScenarioDefinition(astNode);
+        List<Feature.FeatureChild> childrenList = feature.getChildrenList();
+        for(Feature.FeatureChild featureChild :childrenList) {
+            if(scenarioIsIncludedInARule(existingScenario, featureChild)) {
+                return featureChild.getRule();
+            }
+        }
+        return null;
+    }
+
+    private boolean scenarioIsIncludedInARule(Scenario existingScenario, Feature.FeatureChild featureChild) {
+        return featureChild.hasRule() && featureChild.getRule().getChildrenList().stream().map(Feature.FeatureChild.RuleChild::getScenario).collect(Collectors.toList()).contains(existingScenario);
+    }
+
+    private Feature getFeatureForTestCase(TestSourcesModel.AstNode astNode) {
+        while (astNode.parent != null) {
+            astNode = astNode.parent;
+        }
+        return (Feature) astNode.node;
     }
 
     private void handleTestCaseFinished(TestCaseFinished event) {
@@ -318,7 +343,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
                         getContext().queueTestStep(event.getTestStep());
                     }
                     if (getContext().isAScenarioOutline()) {
-                        int lineNumber = event.getTestCase().getLine();
+                        int lineNumber = event.getTestCase().getLocation().getLine();
                         getContext().stepEventBus().updateExampleLineNumber(lineNumber);
                     }
                     Step currentStep = getContext().getCurrentStep();
