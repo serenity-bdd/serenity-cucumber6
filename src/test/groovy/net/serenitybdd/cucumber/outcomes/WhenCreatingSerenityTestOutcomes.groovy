@@ -515,4 +515,19 @@ Feature: A simple feature with tags
         then:
         testOutcome.result == TestResult.SUCCESS
     }
+
+    def "should contain rule information in test outcome"() {
+        given:
+        def runtime = serenityRunnerForCucumberTestRunner(SimpleScenarioWithRules.class, outputDirectory);
+
+        when:
+        runtime.run();
+        def recordedTestOutcomes = new TestOutcomeLoader().forFormat(OutcomeFormat.JSON).loadFrom(outputDirectory).sort{it.name};
+        def firstTestOutcome = recordedTestOutcomes[0]
+        def secondTestOutcome = recordedTestOutcomes[1]
+
+        then:
+        firstTestOutcome.rule == "This is a simple rule"
+        secondTestOutcome.rule == "This is a simple second rule"
+    }
 }
