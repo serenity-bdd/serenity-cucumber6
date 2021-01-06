@@ -527,7 +527,9 @@ Feature: A simple feature with tags
         def secondTestOutcome = recordedTestOutcomes[1]
 
         then:
-        firstTestOutcome.rule == "This is a simple rule"
-        secondTestOutcome.rule == "This is a simple second rule"
+        firstTestOutcome.rule.getName() == "This is a simple rule"
+        firstTestOutcome.rule.getDescription().trim() == "Simple first rule description";
+        secondTestOutcome.rule.getName() == "This is a simple second rule"
+        secondTestOutcome.rule.getDescription().trim() == "Simple second rule description";
     }
 }

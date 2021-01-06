@@ -2,10 +2,13 @@ package io.cucumber.core.plugin;
 
 import com.google.common.collect.Lists;
 import io.cucumber.messages.Messages.GherkinDocument.Feature;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario.Examples;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Background;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow.TableCell;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario.Examples;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Tag;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.plugin.event.*;
@@ -264,7 +267,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
 
             Feature.FeatureChild.Rule rule = getRuleForTestCase(astNode);
             if(rule != null) {
-                getContext().stepEventBus().setRule(rule.getName());
+                getContext().stepEventBus().setRule(new Rule(rule.getName(),rule.getDescription()));
             }
         }
     }
