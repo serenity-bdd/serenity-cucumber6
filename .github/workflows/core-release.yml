@@ -27,5 +27,7 @@ jobs:
         run: ./gradlew clean build uploadArchives -PcoreRelease
       - name: Upload to Nexus
         run: ./gradlew uploadArchives -PcoreRelease
-#      - name: Promote Nexus Release
+      - name: Close Nexus Repository
+        run: ./gradlew closeRepository
+        #      - name: Promote Nexus Release
 #        run: ./gradlew closeAndReleaseRepository -PcoreRelease

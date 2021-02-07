@@ -32,5 +32,7 @@ jobs:
         run: ./gradlew clean build uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Upload to Nexus
         run: ./gradlew uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
+      - name: Close Nexus Repository
+        run: ./gradlew closeRepository
 #      - name: Promote Nexus Release
 #        run: ./gradlew closeAndReleaseRepository -PnextVersion=${{ github.event.inputs.nextVersion }}

@@ -213,6 +213,11 @@ uploadArchives {
     }
 }
 
+nexusStaging {
+    packageGroup = "net.serenity-bdd"
+    stagingProfileId = "net.serenity-bdd"
+}
+
 //nexusStaging {
 //    stagingProfileId = "yourStagingProfileId" //when not defined will be got from server using "packageGroup"
 //}
