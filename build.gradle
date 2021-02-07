@@ -164,9 +164,6 @@ uploadArchives {
             // Sign POM
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            username = System.getenv("OSSRHUSERNAME")
-            password = System.getenv("OSSRHPASSWORD")
-
             // Destination
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
                 authentication(userName: System.getenv("OSSRHUSERNAME"), password: System.getenv("OSSRHPASSWORD"))
