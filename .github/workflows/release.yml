@@ -3,6 +3,11 @@
 
 name: Core Release
 on: [ workflow_dispatch ]
+env:
+  ossrhUsername: ${{ secrets.OSSRHUSERNAME }}
+  ossrhPassword: ${{ secrets.OSSRHPASSWORD }}
+  signing.keyId: ${{ secrets.SIGNING_KEYID }}
+  signing.password: ${{ secrets.SIGNING_PASSWORD }}
 
 jobs:
   build:

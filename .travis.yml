@@ -1,0 +1,13 @@
+language: java
+install: skip
+
+os: linux
+dist: xenial
+addons:
+  chrome: stable
+  firefox: latest
+
+jdk: oraclejdk8
+
+script:
+  - ./gradlew build --scan -s
