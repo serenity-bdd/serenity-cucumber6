@@ -5,29 +5,28 @@
  * To release with a specific version number, use:
  *   gradle build -PnextVersion=1.2.3
  */
-buildscript {
-    repositories {
-        mavenLocal()
-    }
+
+plugins {
+    // Building
+    id 'java'
+    id 'groovy'
+
+    // Signing
+    id 'signing'
+
+    // Deploying
+    id 'maven'
+    id 'io.codearte.nexus-staging' version '0.22.0'
 }
-
-// Building
-apply plugin: 'java'
-apply plugin: 'groovy'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-// Deploying
-apply plugin: 'maven'
 
 repositories {
     mavenCentral()
     mavenLocal()
 }
 
-// Signing
-apply plugin: 'signing'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 signing {
     sign configurations.archives
 }
@@ -146,93 +145,9 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
-//publishing {
-//    publications {
-//        mavenJava(MavenPublication) {
-//
-//            println "Publishing $project.name:$project.group:$project.version"
-//
-//            from components.java
-//
-//            artifact sourcesJar {
-//                classifier "sources"
-//            }
-//
-//            artifact javadocJar {
-//                classifier "javadoc"
-//            }
-//
-//            pom.withXml {
-//                asNode().children().last() + {
-//                    resolveStrategy = Closure.DELEGATE_FIRST
-//                    name 'serenity-cucumber6'
-//                    description 'Serenity Cucumber Integration'
-//
-//                    url 'https://github.com/serenity-bdd/serenity-cucumber6'
-//                    scm {
-//                        url 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
-//                        connection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
-//                        developerConnection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6f.git'
-//                    }
-//                    licenses {
-//                        license {
-//                            name 'The Apache Software License, Version 2.0'
-//                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
-//                            distribution 'repo'
-//                        }
-//                    }
-//                    developers {
-//                        developer {
-//                            id 'cliviu'
-//                            name 'Liviu Carausu'
-//                            email 'liviu.carausu@gmail.com'
-//                        }
-//                        developer {
-//                            id 'johnsmart'
-//                            name 'John Ferguson Smart'
-//                            email 'john.smart@wakaleo.com'
-//                        }
-//                    }
-//                }
-//                // Preserve compile-scope dependencies
-//                asNode().dependencies.'*'.findAll() {
-//                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
-//                        dep.name == it.artifactId.text()
-//                    }
-//                }.each() {
-//                    it.scope*.value = 'compile'
-//                }
-//            }
-//        }
-//    }
-//}
-
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:-options"
 }
-1
-//bintray {
-//    user = bintrayUsername //this usually comes form gradle.properties file in ~/.gradle
-//    key = bintrayApiKey //this usually comes form gradle.properties file in ~/.gradle
-//    publications = ['mavenJava'] // see publications closure
-//    publish = true
-//    pkg {
-//        repo = 'maven'
-//        name = 'serenity-cucumber6'
-//        userOrg = 'serenity'
-//        desc = 'Serenity Cucumber integration'
-//        licenses = ['Apache-2.0']
-//        labels = ['serenity', 'bdd', 'cucumber']
-//        vcsUrl = 'https://github.com/serenity-bdd/serenity-cucumber6.git'
-//
-//        version {
-//            name = nextVersion
-//            desc = "Serenity Cucumber 6 integration version ${nextVersion}"
-//            released = new Date()
-//            vcsTag = "v${nextVersion}"
-//        }
-//    }
-//}
 
 // Build, sign, and upload
 uploadArchives {
@@ -286,6 +201,10 @@ uploadArchives {
         }
     }
 }
+
+//nexusStaging {
+//    stagingProfileId = "yourStagingProfileId" //when not defined will be got from server using "packageGroup"
+//}
 
 task copyDeps(type: Copy) {
     from configurations.runtime + configurations.testCompile
