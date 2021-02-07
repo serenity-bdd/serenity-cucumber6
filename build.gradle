@@ -1,9 +1,13 @@
 //import net.serenitybdd.builds.ProjectVersionCounter
 /**
- * To release a version with the same version number as the serenity core dependency:
+ * To build a release version with the same version number as the serenity core dependency:
  *   gradle build -PcoreRelease
- * To release with a specific version number, use:
+ * To build a release with a specific version number, use:
  *   gradle build -PnextVersion=1.2.3
+ *
+ * To upload a new release to Nexus:
+ *   gradle clean uploadArchives -PcoreRelease
+ *
  */
 
 plugins {
