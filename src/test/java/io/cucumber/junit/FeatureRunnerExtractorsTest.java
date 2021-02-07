@@ -1,6 +1,5 @@
 package io.cucumber.junit;
 
-import io.cucumber.junit.FeatureRunnerExtractors;
 import org.junit.Test;
 import org.junit.runner.Description;
 

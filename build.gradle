@@ -3,52 +3,68 @@
 buildscript {
     repositories {
         mavenLocal()
-        jcenter()
+//        jcenter()
     }
 }
 
-plugins {
-    id "com.jfrog.bintray" version "1.8.4"
-    id 'java'
-    id 'groovy'
-    id 'maven'
-    id 'maven-publish'
-}
+// Building
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+//plugins {
+//    id "com.jfrog.bintray" version "1.8.4"
+//    id 'java'
+//    id 'groovy'
+//    id 'maven'
+//    id 'maven-publish'
+//}
+
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+// Deploying
+apply plugin: 'maven'
+
 repositories {
+    mavenCentral()
     mavenLocal()
-    jcenter()
-    maven() {
-        url "http://dl.bintray.com/serenity/maven/"
-        credentials {               // Optional resolver credentials (leave out to use anonymous resolution)
-            username = System.properties['bintrayUsername'] // Artifactory user name
-            password = System.properties['bintrayApiKey'] // Password or API Key
-        }
-    }
+//    jcenter()
+//    maven() {
+//        url "http://dl.bintray.com/serenity/maven/"
+//        credentials {               // Optional resolver credentials (leave out to use anonymous resolution)
+//            username = System.properties['bintrayUsername'] // Artifactory user name
+//            password = System.properties['bintrayApiKey'] // Password or API Key
+//        }
+//    }
+}
+
+// Signing
+apply plugin: 'signing'
+signing {
+    sign configurations.archives
 }
 
 ext {
-    bintrayBaseUrl = 'https://api.bintray.com/maven'
-    bintrayRepository = 'maven'
-    bintrayPackage = 'serenity-cucumber6'
     projectDescription = 'Serenity Cucumber 6.x integration'
-
-    if (!project.hasProperty("bintrayUsername")) {
-        bintrayUsername = 'wakaleo'
-    }
-    if (!project.hasProperty("bintrayApiKey")) {
-        bintrayApiKey = ''
-    }
+//    bintrayBaseUrl = 'https://api.bintray.com/maven'
+//    bintrayRepository = 'maven'
+//    bintrayPackage = 'serenity-cucumber6'
+//
+//    if (!project.hasProperty("bintrayUsername")) {
+//        bintrayUsername = 'wakaleo'
+//    }
+//    if (!project.hasProperty("bintrayApiKey")) {
+//        bintrayApiKey = ''
+//    }
 
     if (!project.hasProperty("nextVersion")) {
-        nextVersion = '2.2.6-SNAPSHOT'
+        nextVersion = "${serenityCoreVersion}-SNAPSHOT"
     }
 }
 
 group = 'net.serenity-bdd'
+archivesBaseName = "serenity-cucumber6"
 version = nextVersion
 
 
@@ -67,7 +83,7 @@ task tagNewVersion() {
 }
 
 wrapper {
-    gradleVersion = '5.3.1'
+    gradleVersion = '6.4'
 }
 
 test {
@@ -146,90 +162,143 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-
-            println "Publishing $project.name:$project.group:$project.version"
-
-            from components.java
-
-            artifact sourcesJar {
-                classifier "sources"
-            }
-
-            artifact javadocJar {
-                classifier "javadoc"
-            }
-
-            pom.withXml {
-                asNode().children().last() + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
-                    name 'serenity-cucumber6'
-                    description 'Serenity Cucumber Integration'
-
-                    url 'https://github.com/serenity-bdd/serenity-cucumber6'
-                    scm {
-                        url 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
-                        connection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
-                        developerConnection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6f.git'
-                    }
-                    licenses {
-                        license {
-                            name 'The Apache Software License, Version 2.0'
-                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
-                            distribution 'repo'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id 'cliviu'
-                            name 'Liviu Carausu'
-                            email 'liviu.carausu@gmail.com'
-                        }
-                        developer {
-                            id 'johnsmart'
-                            name 'John Ferguson Smart'
-                            email 'john.smart@wakaleo.com'
-                        }
-                    }
-                }
-                // Preserve compile-scope dependencies
-                asNode().dependencies.'*'.findAll() {
-                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
-                        dep.name == it.artifactId.text()
-                    }
-                }.each() {
-                    it.scope*.value = 'compile'
-                }
-            }
-        }
-    }
-}
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//
+//            println "Publishing $project.name:$project.group:$project.version"
+//
+//            from components.java
+//
+//            artifact sourcesJar {
+//                classifier "sources"
+//            }
+//
+//            artifact javadocJar {
+//                classifier "javadoc"
+//            }
+//
+//            pom.withXml {
+//                asNode().children().last() + {
+//                    resolveStrategy = Closure.DELEGATE_FIRST
+//                    name 'serenity-cucumber6'
+//                    description 'Serenity Cucumber Integration'
+//
+//                    url 'https://github.com/serenity-bdd/serenity-cucumber6'
+//                    scm {
+//                        url 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
+//                        connection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6.git'
+//                        developerConnection 'scm:git:git@github.com:serenity-bdd/serenity-cucumber6f.git'
+//                    }
+//                    licenses {
+//                        license {
+//                            name 'The Apache Software License, Version 2.0'
+//                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+//                            distribution 'repo'
+//                        }
+//                    }
+//                    developers {
+//                        developer {
+//                            id 'cliviu'
+//                            name 'Liviu Carausu'
+//                            email 'liviu.carausu@gmail.com'
+//                        }
+//                        developer {
+//                            id 'johnsmart'
+//                            name 'John Ferguson Smart'
+//                            email 'john.smart@wakaleo.com'
+//                        }
+//                    }
+//                }
+//                // Preserve compile-scope dependencies
+//                asNode().dependencies.'*'.findAll() {
+//                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
+//                        dep.name == it.artifactId.text()
+//                    }
+//                }.each() {
+//                    it.scope*.value = 'compile'
+//                }
+//            }
+//        }
+//    }
+//}
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:-options"
 }
 1
-bintray {
-    user = bintrayUsername //this usually comes form gradle.properties file in ~/.gradle
-    key = bintrayApiKey //this usually comes form gradle.properties file in ~/.gradle
-    publications = ['mavenJava'] // see publications closure
-    publish = true
-    pkg {
-        repo = 'maven'
-        name = 'serenity-cucumber6'
-        userOrg = 'serenity'
-        desc = 'Serenity Cucumber integration'
-        licenses = ['Apache-2.0']
-        labels = ['serenity', 'bdd', 'cucumber']
-        vcsUrl = 'https://github.com/serenity-bdd/serenity-cucumber6.git'
+//bintray {
+//    user = bintrayUsername //this usually comes form gradle.properties file in ~/.gradle
+//    key = bintrayApiKey //this usually comes form gradle.properties file in ~/.gradle
+//    publications = ['mavenJava'] // see publications closure
+//    publish = true
+//    pkg {
+//        repo = 'maven'
+//        name = 'serenity-cucumber6'
+//        userOrg = 'serenity'
+//        desc = 'Serenity Cucumber integration'
+//        licenses = ['Apache-2.0']
+//        labels = ['serenity', 'bdd', 'cucumber']
+//        vcsUrl = 'https://github.com/serenity-bdd/serenity-cucumber6.git'
+//
+//        version {
+//            name = nextVersion
+//            desc = "Serenity Cucumber 6 integration version ${nextVersion}"
+//            released = new Date()
+//            vcsTag = "v${nextVersion}"
+//        }
+//    }
+//}
 
-        version {
-            name = nextVersion
-            desc = "Serenity Cucumber 6 integration version ${nextVersion}"
-            released = new Date()
-            vcsTag = "v${nextVersion}"
+// Build, sign, and upload
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            // Sign POM
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            // Destination
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            // Add required metadata to POM
+            pom.project {
+                name 'Serenity BDD Cucumber 6 Integration'
+                packaging 'jar'
+                description 'Run Serenity tests and generate Serenity reports using Cucumber 6'
+                url 'https://github.com/serenity-bdd/serenity-cucumber6'
+
+                scm {
+                    connection 'scm:git:git://github.com/serenity-bdd/serenity-cucumber6.git'
+                    developerConnection 'scm:git:ssh://github.com/serenity-bdd/serenity-cucumber6'
+                    url 'https://github.com/serenity-bdd/serenity-cucumber6/tree/master'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'johnsmart'
+                        name 'John Ferguson Smart'
+                        email 'john.smart@wakaleo.com'
+                    }
+                    developer {
+                        id "cliviu"
+                        name "Liviu Carausu"
+                        email 'liviu.carausu@gmail.com'
+                    }
+                }
+            }
         }
     }
 }

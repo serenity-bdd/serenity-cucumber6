@@ -5,7 +5,7 @@ Feature: A simple feature
     Scenario: A simple scenario
       Given I want to purchase 2 widgets
       And a widget costs $5
-      When I buy the widgets
+      When I buy the widget
       Then I should be billed $10
 
   Rule: This is a simple second rule
@@ -15,5 +15,4 @@ Feature: A simple feature
       And a widget costs $5
       When I buy the widgets
       Then I should be billed $10
-
 
