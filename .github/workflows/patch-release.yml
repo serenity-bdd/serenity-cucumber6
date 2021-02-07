@@ -29,12 +29,6 @@ jobs:
         run: ./gradlew clean build -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Upload to Nexus
         run: ./gradlew uploadArchives
-      - name: Wait for Nexus
-          uses: jakejarvis/wait-action@master
-          with:
-            time: '60s'
-      - name: Close Nexus Repository
-        run: ./gradlew closeRepository
       - name: Wait for Nexus to upload the binaries
         run: sleep 30
       - name: Close Nexus Repository
