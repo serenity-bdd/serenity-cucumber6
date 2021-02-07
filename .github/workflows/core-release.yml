@@ -24,15 +24,11 @@ jobs:
         run: ./gradlew clean build uploadArchives -PcoreRelease
       - name: Upload to Nexus
         run: ./gradlew uploadArchives -PcoreRelease
-      - name: Wait for Nexus
-          uses: jakejarvis/wait-action@master
-          with:
-            time: '60s'
+      - name: Wait for Nexus to upload the binaries
+        run: sleep 30
       - name: Close Nexus Repository
         run: ./gradlew closeRepository
-      - name: Wait for Nexus
-          uses: jakejarvis/wait-action@master
-          with:
-            time: '60s'
+      - name: Wait for Nexus to close the repository
+        run: sleep 30
       - name: Release Nexus Repository
         run: ./gradlew releaseRepository
