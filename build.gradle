@@ -1,24 +1,19 @@
 //import net.serenitybdd.builds.ProjectVersionCounter
-
+/**
+ * To release a version with the same version number as the serenity core dependency:
+ *   gradle build -PcoreRelease
+ * To release with a specific version number, use:
+ *   gradle build -PnextVersion=1.2.3
+ */
 buildscript {
     repositories {
         mavenLocal()
-//        jcenter()
     }
 }
 
 // Building
 apply plugin: 'java'
 apply plugin: 'groovy'
-
-//plugins {
-//    id "com.jfrog.bintray" version "1.8.4"
-//    id 'java'
-//    id 'groovy'
-//    id 'maven'
-//    id 'maven-publish'
-//}
-
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -29,14 +24,6 @@ apply plugin: 'maven'
 repositories {
     mavenCentral()
     mavenLocal()
-//    jcenter()
-//    maven() {
-//        url "http://dl.bintray.com/serenity/maven/"
-//        credentials {               // Optional resolver credentials (leave out to use anonymous resolution)
-//            username = System.properties['bintrayUsername'] // Artifactory user name
-//            password = System.properties['bintrayApiKey'] // Password or API Key
-//        }
-//    }
 }
 
 // Signing
@@ -47,25 +34,20 @@ signing {
 
 ext {
     projectDescription = 'Serenity Cucumber 6.x integration'
-//    bintrayBaseUrl = 'https://api.bintray.com/maven'
-//    bintrayRepository = 'maven'
-//    bintrayPackage = 'serenity-cucumber6'
-//
-//    if (!project.hasProperty("bintrayUsername")) {
-//        bintrayUsername = 'wakaleo'
-//    }
-//    if (!project.hasProperty("bintrayApiKey")) {
-//        bintrayApiKey = ''
-//    }
 
     if (!project.hasProperty("nextVersion")) {
-        nextVersion = "${serenityCoreVersion}-SNAPSHOT"
+        if (project.hasProperty("coreRelease")) {
+            ext.nextVersion = "${serenityCoreVersion}"
+        } else {
+            ext.nextVersion = "${serenityCoreVersion}-SNAPSHOT"
+        }
     }
 }
 
 group = 'net.serenity-bdd'
 archivesBaseName = "serenity-cucumber6"
 version = nextVersion
+println "BUILDING VERSION ${nextVersion}"
 
 
 task createNewVersionTag(type: Exec) {
@@ -157,6 +139,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 
 artifacts {
     archives sourcesJar, javadocJar
