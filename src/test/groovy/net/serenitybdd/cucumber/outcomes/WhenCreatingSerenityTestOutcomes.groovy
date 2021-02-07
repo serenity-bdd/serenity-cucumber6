@@ -101,8 +101,8 @@ class WhenCreatingSerenityTestOutcomes extends Specification {
         and:
         stepResults == [TestResult.FAILURE, TestResult.SUCCESS]
         and:
-        testOutcome.testSteps[0].description == "Example: {count=1, cost=5}"
-        testOutcome.testSteps[1].description == "Example: {count=2, cost=5}"
+        testOutcome.testSteps[0].description.contains("1: A simple failing scenario outline")
+        testOutcome.testSteps[1].description.contains("2: A simple failing scenario outline")
     }
 
     def "should record a feature tag based on the name of the feature when the feature name is different from the feature file name"() {
