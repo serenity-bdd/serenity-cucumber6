@@ -164,7 +164,6 @@ tasks.withType(JavaCompile) {
 uploadArchives {
     repositories {
         mavenDeployer {
-
             // Sign POM
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
@@ -215,12 +214,8 @@ uploadArchives {
 
 nexusStaging {
     packageGroup = "net.serenity-bdd"
-    stagingProfileId = "net.serenity-bdd"
+    stagingProfileId = "88ab355676248c"
 }
-
-//nexusStaging {
-//    stagingProfileId = "yourStagingProfileId" //when not defined will be got from server using "packageGroup"
-//}
 
 task copyDeps(type: Copy) {
     from configurations.runtime + configurations.testCompile

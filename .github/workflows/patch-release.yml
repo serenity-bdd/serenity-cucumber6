@@ -29,10 +29,18 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build and test
-        run: ./gradlew clean build uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
+        run: ./gradlew clean build -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Upload to Nexus
-        run: ./gradlew uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
+        run: ./gradlew uploadArchives
+      - name: Wait for Nexus
+          uses: jakejarvis/wait-action@master
+          with:
+            time: '60s'
       - name: Close Nexus Repository
         run: ./gradlew closeRepository
-#      - name: Promote Nexus Release
-#        run: ./gradlew closeAndReleaseRepository -PnextVersion=${{ github.event.inputs.nextVersion }}
+      - name: Wait for Nexus
+          uses: jakejarvis/wait-action@master
+          with:
+            time: '60s'
+      - name: Release Nexus Repository
+        run: ./gradlew releaseRepository
