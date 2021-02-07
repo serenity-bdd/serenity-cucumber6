@@ -1,8 +1,13 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Core Release
-on: [ workflow_dispatch ]
+name: Patch Release
+on:
+  workflow_dispatch:
+    inputs:
+      nextVersion:
+        description: 'Next version number'
+        required: true
 env:
   OSSRHUSERNAME: ${{ secrets.OSSRHUSERNAME }}
   OSSRHPASSWORD: ${{ secrets.OSSRHPASSWORD }}
@@ -24,8 +29,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build and test
-        run: ./gradlew clean build uploadArchives -PcoreRelease
+        run: ./gradlew clean build uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Upload to Nexus
-        run: ./gradlew uploadArchives -PcoreRelease
+        run: ./gradlew uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Promote Nexus Release
-        run: ./gradlew closeAndReleaseRepository -PcoreRelease
+        run: ./gradlew closeAndReleaseRepository -PnextVersion=${{ github.event.inputs.nextVersion }}
