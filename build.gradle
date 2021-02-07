@@ -136,7 +136,7 @@ dependencies {
 jar {
     manifest {
         attributes("Implementation-Title": "Serenity Cucumber 5 Plugin",
-                "Implementation-Version": project.version.toString())
+                   "Implementation-Version": project.version.toString())
     }
 }
 

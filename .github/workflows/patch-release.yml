@@ -28,12 +28,12 @@ jobs:
       - name: Build and test
         run: ./gradlew clean build -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Upload to Nexus
-        run: ./gradlew uploadArchives
+        run: ./gradlew uploadArchives -PnextVersion=${{ github.event.inputs.nextVersion }}
       - name: Wait for Nexus to upload the binaries
         run: sleep 30
-#      - name: Close Nexus Repository
-#        run: ./gradlew closeRepository
-#      - name: Wait for Nexus to close the repository
-#        run: sleep 30
-#      - name: Release Nexus Repository
-#        run: ./gradlew releaseRepository
+      - name: Close Nexus Repository
+        run: ./gradlew closeRepository
+      - name: Wait for Nexus to close the repository
+        run: sleep 30
+      - name: Release Nexus Repository
+        run: ./gradlew releaseRepository
