@@ -8,8 +8,8 @@ on:
   pull_request:
     branches: [ master ]
 env:
-  ossrhUsername: ${{ secrets.OSSRHUSERNAME }}
-  ossrhPassword: ${{ secrets.OSSRHPASSWORD }}
+  OSSRHUSERNAME: ${{ secrets.OSSRHUSERNAME }}
+  OSSRHPASSWORD: ${{ secrets.OSSRHPASSWORD }}
 
 jobs:
   build:
@@ -25,4 +25,4 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew clean test -PossrhUsername=${{ secrets.OSSRHUSERNAME }} -PossrhPassword ${{ secrets.OSSRHPASSWORD }}
+        run: ./gradlew clean test

@@ -8,6 +8,9 @@
  * To upload a new release to Nexus:
  *   gradle clean uploadArchives -PcoreRelease
  *
+ * Requirement environment variables:
+ *   - OSSRHUSERNAME - Nexus username
+ *   - OSSRHPASSWORD - Nexus password
  */
 
 plugins {
@@ -161,12 +164,15 @@ uploadArchives {
             // Sign POM
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
+            username = System.getenv("OSSRHUSERNAME")
+            password = System.getenv("OSSRHPASSWORD")
+
             // Destination
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: System.getenv("OSSRHUSERNAME"), password: System.getenv("OSSRHPASSWORD"))
             }
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: System.getenv("OSSRHUSERNAME"), password: System.getenv("OSSRHPASSWORD"))
             }
 
             // Add required metadata to POM
