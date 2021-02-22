@@ -13,20 +13,24 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import java.nio.file.Files
+
 import static io.cucumber.junit.CucumberRunner.serenityRunnerForCucumberTestRunner
 
-public class WhenRunningCucumberStoriesWithScreenshots extends Specification {
+class WhenRunningCucumberStoriesWithScreenshots extends Specification {
 
 
-    @Rule
-    TemporaryFolder temporaryFolder
+//    @Rule
+//    TemporaryFolder temporaryFolder
 
     File outputDirectory
 
     def environmentVariables = new MockEnvironmentVariables()
 
     def setup() {
-        outputDirectory = temporaryFolder.newFolder()
+        outputDirectory = Files.createTempDirectory("cukes").toFile();
+        outputDirectory.deleteOnExit();
+
         environmentVariables.setProperty("webdriver.driver", "htmlunit")
     }
 

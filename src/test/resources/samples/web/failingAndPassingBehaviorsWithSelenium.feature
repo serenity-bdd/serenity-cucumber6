@@ -1,4 +1,4 @@
-@driver:phantomjs
+@driver:chrome
 @driver-options:--headless
 Feature: Failing and Passing Behaviors With Selenium
 
