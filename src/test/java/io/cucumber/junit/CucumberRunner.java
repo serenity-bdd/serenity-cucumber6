@@ -1,7 +1,5 @@
 package io.cucumber.junit;
 
-//import cucumber.runtime.Env;
-
 import io.cucumber.core.options.CucumberOptionsAnnotationParser;
 import io.cucumber.core.options.RuntimeOptions;
 import io.cucumber.core.options.RuntimeOptionsBuilder;
@@ -17,9 +15,6 @@ import org.junit.runner.JUnitCore;
 
 import java.io.File;
 import java.util.function.Supplier;
-
-//import io.cucumber.core.options.EnvironmentOptionsParser;
-
 
 /**
  * Created by john on 31/07/2014.
