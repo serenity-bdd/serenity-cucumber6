@@ -38,7 +38,7 @@ class ScenarioContext {
 
     boolean waitingToProcessBackgroundSteps = false;
 
-    String currentScenarioId;
+    private String currentScenarioId;
 
     Scenario currentScenarioDefinition;
 
@@ -94,6 +94,10 @@ class ScenarioContext {
         return currentScenarioId;
     }
 
+    public void setCurrentScenarioId(String scenarioId) {
+        currentScenarioId = scenarioId;
+    }
+
     public Scenario getCurrentScenarioDefinition() {
         return currentScenarioDefinition;
     }
@@ -137,13 +141,6 @@ class ScenarioContext {
 
     public List<Tag> getScenarioTags() {
         return currentScenarioDefinition.getTagsList();
-        /*if (currentScenarioDefinition instanceof ScenarioOutline) {
-            return ((ScenarioOutline) currentScenarioDefinition).getTags();
-        } else if (currentScenarioDefinition instanceof Scenario) {
-            return ((Scenario) currentScenarioDefinition).getTags();
-        } else {
-            return new ArrayList<>();
-        }*/
     }
 
     public String getScenarioName() {

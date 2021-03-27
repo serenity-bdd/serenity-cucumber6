@@ -41,6 +41,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import static io.cucumber.core.plugin.TaggedScenario.*;
@@ -77,6 +78,8 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     private ManualScenarioChecker manualScenarioDateChecker;
 
     private ThreadLocal<ScenarioContext> localContext = ThreadLocal.withInitial(ScenarioContext::new);
+
+    private Set<URI> contextURISet = new CopyOnWriteArraySet<>();
 
     private ScenarioContext getContext() {
         return localContext.get();
@@ -231,6 +234,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
 
         URI featurePath = event.getTestCase().getUri();
         getContext().currentFeaturePathIs(featurePath);
+        contextURISet.add(featurePath);
         setStepEventBus(featurePath);
 
         String scenarioName = event.getTestCase().getName();
@@ -460,7 +464,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
                 }
                 getContext().addTableTags(tagsIn(examples));
 
-                getContext().currentScenarioId = scenarioId;
+                getContext().setCurrentScenarioId(scenarioId);
             }
         }
     }
@@ -768,18 +772,21 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
         getContext().clearStepQueue();
         getContext().clearTestStepQueue();
 
-        Optional.ofNullable(getContext().currentFeaturePath()).ifPresent(
-                featurePath -> {
-                    getStepEventBus(featurePath).testSuiteFinished();
-                    getStepEventBus(featurePath).dropAllListeners();
-                    getStepEventBus(featurePath).clear();
-                    StepEventBus.clearEventBusFor(featurePath);
-                }
-        );
+        contextURISet.forEach(this::cleanupTestResourcesForURI);
+        contextURISet.clear();
+
         Serenity.done();
         getContext().clearTable();
-        getContext().currentScenarioId = null;
+        getContext().setCurrentScenarioId(null);
 
+    }
+
+    private void cleanupTestResourcesForURI(URI uri) {
+        LOGGER.info("Cleanup test resources for URI " + uri);
+        getStepEventBus(uri).testSuiteFinished();
+        getStepEventBus(uri).dropAllListeners();
+        getStepEventBus(uri).clear();
+        StepEventBus.clearEventBusFor(uri);
     }
 
     private void handleResult(Result result) {
@@ -897,7 +904,6 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     private String stepTitleFrom(Step currentStep, io.cucumber.plugin.event.TestStep testStep) {
         if (currentStep != null && testStep instanceof PickleStepTestStep)
             return currentStep.getKeyword()
-                    //+ ((PickleStepTestStep) testStep).getPickleStep().getText()
                     + ((PickleStepTestStep) testStep).getStep().getText()
                     + embeddedTableDataIn((PickleStepTestStep) testStep);
         return "";
@@ -906,13 +912,10 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     private String embeddedTableDataIn(PickleStepTestStep currentStep) {
         if (currentStep.getStep().getArgument() != null) {
             StepArgument stepArgument = currentStep.getStep().getArgument();
-            System.out.println("Step argument " + stepArgument.getClass());
-            //if (stepArgument instanceof PickleTable) {
             if (stepArgument instanceof DataTableArgument) {
                 List<Map<String, Object>> rowList = new ArrayList<Map<String, Object>>();
                 for (List<String> row : ((DataTableArgument) stepArgument).cells()) {
                     Map<String, Object> rowMap = new HashMap<String, Object>();
-                    //rowMap.put("cells", createCellList(row));
                     rowMap.put("cells", row);
                     rowList.add(rowMap);
                 }
