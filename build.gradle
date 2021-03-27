@@ -48,13 +48,13 @@ signing {
 ext {
     projectDescription = 'Serenity Cucumber 6.x integration'
 
-    if (!project.hasProperty("nextVersion")) {
-        if (project.hasProperty("coreRelease")) {
-            ext.nextVersion = "${serenityCoreVersion}"
-        } else {
-            ext.nextVersion = "${serenityCoreVersion}-SNAPSHOT"
-        }
-    }
+//    if (!project.hasProperty("nextVersion")) {
+//        if (project.hasProperty("coreRelease")) {
+//            ext.nextVersion = "${serenityCoreVersion}"
+//        } else {
+//            ext.nextVersion = "${serenityCoreVersion}-SNAPSHOT"
+//        }
+//    }
 }
 
 group = 'net.serenity-bdd'

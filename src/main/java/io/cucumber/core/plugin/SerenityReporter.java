@@ -267,7 +267,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
 
             Feature.FeatureChild.Rule rule = getRuleForTestCase(astNode);
             if(rule != null) {
-                getContext().stepEventBus().setRule(new Rule(rule.getName(),rule.getDescription()));
+                getContext().stepEventBus().setRule(Rule.from(rule));
             }
         }
     }
@@ -276,7 +276,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
         Feature feature = getFeatureForTestCase(astNode);
         Scenario existingScenario = TestSourcesModel.getScenarioDefinition(astNode);
         List<Feature.FeatureChild> childrenList = feature.getChildrenList();
-        for(Feature.FeatureChild featureChild :childrenList) {
+        for(Feature.FeatureChild featureChild : childrenList) {
             if(scenarioIsIncludedInARule(existingScenario, featureChild)) {
                 return featureChild.getRule();
             }
