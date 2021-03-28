@@ -27,8 +27,8 @@ jobs:
       - name: Wait for Nexus to upload the binaries
         run: sleep 30
       - name: Close Nexus Repository
-        run: ./gradlew closeRepository
+        run: ./gradlew closeRepository -PcoreRelease
       - name: Wait for Nexus to close the repository
         run: sleep 30
       - name: Release Nexus Repository
-        run: ./gradlew releaseRepository
+        run: ./gradlew releaseRepository -PcoreRelease
