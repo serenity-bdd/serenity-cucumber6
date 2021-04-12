@@ -66,6 +66,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     private final List<BaseStepListener> baseStepListeners;
 
     private final static String FEATURES_ROOT_PATH = "/features/";
+    private final static String FEATURES_CLASSPATH_ROOT_PATH = ":features/";
 
     private FeatureFileLoader featureLoader = new FeatureFileLoader();
 
@@ -159,11 +160,8 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
                     resetEventBusFor(featurePath);
                     initialiseListenersFor(featurePath);
                     configureDriver(feature, featurePath);
-
                     Story userStory = userStoryFrom(feature, relativeUriFrom(event.getUri()));
-
                     getStepEventBus(event.getUri()).testSuiteStarted(userStory);
-
                 }
         );
     }
@@ -195,7 +193,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     private Optional<Feature> featureFrom(URI featureFileUri) {
 
         LOGGER.info("Running feature from " + featureFileUri.toString());
-        if (!featureFileUri.toString().contains(FEATURES_ROOT_PATH)) {
+        if (!featureFileUri.toString().contains(FEATURES_ROOT_PATH) && !featureFileUri.toString().contains(FEATURES_CLASSPATH_ROOT_PATH)) {
             LOGGER.warn("Feature from " + featureFileUri + " is not under the 'features' directory. Requirements report will not be correctly generated!");
         }
         String defaultFeatureId = PathUtils.getAsFile(featureFileUri).getName().replace(".feature", "");
