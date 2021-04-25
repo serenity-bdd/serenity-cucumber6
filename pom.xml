@@ -5,7 +5,7 @@
 
     <groupId>net.serenity-bdd</groupId>
     <artifactId>serenity-cucumber6</artifactId>
-    <version>2.4.2-SNAPSHOT</version>
+    <version>2.4.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>Serenity BDD Cucumber Integration</description>
     <name>Serenity BDD Cucumber 6</name>
@@ -40,7 +40,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <serenityCoreVersion>2.4.1</serenityCoreVersion>
+        <serenityCoreVersion>2.4.5</serenityCoreVersion>
         <cucumberJVMVersion>6.10.2</cucumberJVMVersion>
         <cucumberDatatableMatchersVersion>3.5.0</cucumberDatatableMatchersVersion>
         <commonsLoggingVersion>1.2</commonsLoggingVersion>
