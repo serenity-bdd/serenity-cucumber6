@@ -108,6 +108,9 @@ dependencies {
     compile("net.serenity-bdd:serenity-core:${serenityCoreVersion}")
     compile("net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}")
     compile("net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}")
+    compile("org.seleniumhq.selenium:selenium-java:${seleniumVersion}")
+    compile("org.seleniumhq.selenium:selenium-api:${seleniumVersion}")
+    compile("org.seleniumhq.selenium:selenium-api:${seleniumVersion}")
     compile "io.cucumber:cucumber-java:${cucumberJVMVersion}"
     compile("io.cucumber:cucumber-junit:${cucumberJVMVersion}") {
         exclude group: "junit"

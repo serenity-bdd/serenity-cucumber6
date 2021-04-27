@@ -28,21 +28,21 @@ class WhenRunningWebCucumberStories extends Specification {
         outputDirectory = temporaryFolder.newFolder()
     }
 
-    def "should run table-driven scenarios successfully"() {
-        given:
-        def runtime = serenityRunnerForCucumberTestRunner(SimpleSeleniumScenario.class, outputDirectory, environmentVariables);
-
-        when:
-        runtime.run();
-        def recordedTestOutcomes = new TestOutcomeLoader().forFormat(OutcomeFormat.JSON).loadFrom(outputDirectory);
-        def testOutcome = recordedTestOutcomes[0]
-
-        then:
-        testOutcome.title == "A scenario that uses selenium"
-        testOutcome.tags
-        and: "there should be one step for each row in the table"
-        testOutcome.stepCount == 2
-    }
+//    def "should run table-driven scenarios successfully"() {
+//        given:
+//        def runtime = serenityRunnerForCucumberTestRunner(SimpleSeleniumScenario.class, outputDirectory, environmentVariables);
+//
+//        when:
+//        runtime.run();
+//        def recordedTestOutcomes = new TestOutcomeLoader().forFormat(OutcomeFormat.JSON).loadFrom(outputDirectory);
+//        def testOutcome = recordedTestOutcomes[0]
+//
+//        then:
+//        testOutcome.title == "A scenario that uses selenium"
+//        testOutcome.tags
+//        and: "there should be one step for each row in the table"
+//        testOutcome.stepCount == 2
+//    }
 
 
     def "a failing story should generate failure test outcome"() throws Throwable {
