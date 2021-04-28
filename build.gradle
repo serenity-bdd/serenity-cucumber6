@@ -90,6 +90,21 @@ test {
     exclude '**/samples/**'
     exclude '**/*Sample*'
     maxParallelForks = Runtime.runtime.availableProcessors() * 4
+
+    testLogging {
+        events 'standard_error'
+
+        // Or we use events method:
+        // events 'standard_out', 'standard_error'
+
+        // Or set property events:
+        // events = ['standard_out', 'standard_error']
+
+        // Instead of string values we can
+        // use enum values:
+        // events org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+        //        org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR,
+    }
 }
 
 
@@ -108,9 +123,6 @@ dependencies {
     compile("net.serenity-bdd:serenity-core:${serenityCoreVersion}")
     compile("net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}")
     compile("net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}")
-    compile("org.seleniumhq.selenium:selenium-java:${seleniumVersion}")
-    compile("org.seleniumhq.selenium:selenium-api:${seleniumVersion}")
-    compile("org.seleniumhq.selenium:selenium-api:${seleniumVersion}")
     compile "io.cucumber:cucumber-java:${cucumberJVMVersion}"
     compile("io.cucumber:cucumber-junit:${cucumberJVMVersion}") {
         exclude group: "junit"

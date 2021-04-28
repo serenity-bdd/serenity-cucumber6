@@ -40,7 +40,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <serenityCoreVersion>2.4.5</serenityCoreVersion>
+        <serenityCoreVersion>2.4.20</serenityCoreVersion>
         <cucumberJVMVersion>6.10.2</cucumberJVMVersion>
         <cucumberDatatableMatchersVersion>3.5.0</cucumberDatatableMatchersVersion>
         <commonsLoggingVersion>1.2</commonsLoggingVersion>

@@ -30,7 +30,7 @@ class WhenConfiguringCucumberTagProviders extends Specification {
         then:
             tagProviders.size() == 3
             tagProviders[0].class == FileSystemRequirementsTagProvider
-            println "ROOT DIRECTORY A:" + ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory
+            System.err.println "ROOT DIRECTORY A:" + ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory
             ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory == "src/test/resources/features"
     }
 
@@ -44,7 +44,7 @@ class WhenConfiguringCucumberTagProviders extends Specification {
         then:
             tagProviders.size() == 3
             tagProviders[0].class == FileSystemRequirementsTagProvider
-            println "ROOT DIRECTORY B:" + ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory
+            System.err.println "ROOT DIRECTORY B:" + ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory
             ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory == "feature-files"
     }
 
@@ -71,7 +71,7 @@ class WhenConfiguringCucumberTagProviders extends Specification {
         and:
             def tags = tagProvider.getTagsFor(testOutcome)
         then:
-            println "TAGS:" + ((FileSystemRequirementsTagProvider) tagProviders[0]).rootDirectory
+            System.err.println tags
             tags.contains(TestTag.withValue("feature:Calculator/More complex Arithmetic")) && tags.contains(TestTag.withValue("capability:Calculator"))
     }
 
