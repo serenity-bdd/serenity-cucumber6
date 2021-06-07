@@ -32,7 +32,7 @@ public class ScenarioFilter extends Filter {
     @Override
     public boolean shouldRun(Description description) {
         String displayName = description.getDisplayName();
-        String methodName = description.getMethodName();
+        String methodName = description.getMethodName().replaceAll(" #\\d+$",""); //For scenario outline method name contains #X where X is row number
         boolean shouldRun = scenarios.stream().anyMatch(methodName::equals) || displayName.startsWith("Examples") || displayName.contains("|");
         LOGGER.debug("Test should run: {} step: {}", shouldRun, description.getDisplayName());
         if (shouldRun) {
