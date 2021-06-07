@@ -14,6 +14,7 @@ import io.cucumber.core.runtime.Runtime;
 import io.cucumber.core.runtime.*;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.tagexpressions.Expression;
+import net.serenitybdd.cucumber.SerenityOptions;
 import net.serenitybdd.cucumber.suiteslicing.CucumberSuiteSlicer;
 import net.serenitybdd.cucumber.suiteslicing.ScenarioFilter;
 import net.serenitybdd.cucumber.suiteslicing.TestStatistics;
@@ -22,6 +23,7 @@ import net.serenitybdd.cucumber.util.PathUtils;
 import net.serenitybdd.cucumber.util.Splitter;
 import net.thucydides.core.ThucydidesSystemProperty;
 import net.thucydides.core.guice.Injectors;
+import net.thucydides.core.steps.StepEventBus;
 import net.thucydides.core.util.EnvironmentVariables;
 import net.thucydides.core.webdriver.Configuration;
 import org.junit.runner.Description;
@@ -43,6 +45,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static io.cucumber.junit.FileNameCompatibleNames.uniqueSuffix;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static net.thucydides.core.ThucydidesSystemProperty.*;
@@ -115,7 +118,7 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
                 .build(junitAnnotationOptions);
 
         JUnitOptions junitOptions = new JUnitOptionsParser()
-                .parse(CucumberProperties.fromSystemProperties())
+                .parse(fromSystemPropertiesAndOptionsAnnotationIn(clazz))
                 //.setStrict(runtimeOptions.isStrict())
                 .build(junitEnvironmentOptions);
 
@@ -157,6 +160,26 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
                 .filter(runner -> !runner.isEmpty())
                 .collect(toList());
     }
+
+    private Map<String,String> fromSystemPropertiesAndOptionsAnnotationIn(Class clazz) {
+        if (clazz.getAnnotation(SerenityOptions.class) == null) {
+            return CucumberProperties.fromSystemProperties();
+        } else {
+            Map<String, String> systemProperties = new HashMap<>(CucumberProperties.fromSystemProperties());
+            SerenityOptions options = (SerenityOptions) clazz.getAnnotation(SerenityOptions.class);
+            stream(options.value().split(",")).forEach(
+                    option -> {
+                        String[] optionParts = option.split("=");
+                        String key = optionParts[0].trim();
+                        String value = (optionParts.length == 1) ? "true" : optionParts[1].trim();
+                        systemProperties.put(key,value);
+                    }
+            );
+            return systemProperties;
+        }
+    }
+
+
 
     private static RuntimeOptions DEFAULT_RUNTIME_OPTIONS;
 
@@ -263,6 +286,7 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
                 runFeatures.evaluate();
             } finally {
                 context.finishTestRun();
+                StepEventBus.getEventBus().testRunFinished();
             }
         }
     }
