@@ -895,7 +895,11 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     }
 
     private boolean isAssumptionFailure(Throwable rootCause) {
-        return ("org.junit.internal.AssumptionViolatedException".equals(rootCause.getClass().getCanonicalName()));
+    	try {
+			return (Class.forName("org.junit.internal.AssumptionViolatedException").isAssignableFrom(rootCause.getClass()));
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
     }
 
     private String stepTitleFrom(Step currentStep, io.cucumber.plugin.event.TestStep testStep) {
