@@ -68,25 +68,13 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
 
     private boolean multiThreadingAssumed = false;
 
-    /**
-     * Constructor called by JUnit.
-     *
-     * @param clazz the class with the @RunWith annotation.
-     * @throws InitializationError if there is another problem
-     */
-    public CucumberSerenityRunner(Class clazz) throws InitializationError {
-        super(clazz);
-        Assertions.assertNoCucumberAnnotatedMethods(clazz);
-
-        // Parse the options early to provide fast feedback about invalid options
+    private static RuntimeOptions buildRuntimeOptions(Function<RuntimeOptions, RuntimeOptions> configurer) {
         RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser()
                 .parse(CucumberProperties.fromPropertiesFile())
                 .build();
 
-        RuntimeOptions annotationOptions = new CucumberOptionsAnnotationParser()
-                .withOptionsProvider(new JUnitCucumberOptionsProvider())
-                .parse(clazz)
-                .build(propertiesFileOptions);
+        RuntimeOptions annotationOptions = configurer != null ?
+        		configurer.apply(propertiesFileOptions) : propertiesFileOptions;
 
         RuntimeOptions environmentOptions = new CucumberPropertiesParser()
                 .parse(CucumberProperties.fromEnvironment())
@@ -103,6 +91,25 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
             runtimeOptionsBuilder.addTagFilter(new LiteralExpression(tagFilter));
         }
         runtimeOptionsBuilder.build(runtimeOptions);
+        return runtimeOptions;
+    }
+
+    /**
+     * Constructor called by JUnit.
+     *
+     * @param clazz the class with the @RunWith annotation.
+     * @throws InitializationError if there is another problem
+     */
+    public CucumberSerenityRunner(Class clazz) throws InitializationError {
+        super(clazz);
+        Assertions.assertNoCucumberAnnotatedMethods(clazz);
+
+        // Parse the options early to provide fast feedback about invalid options
+        RuntimeOptions runtimeOptions = buildRuntimeOptions(
+        		propertiesFileOptions -> new CucumberOptionsAnnotationParser()
+                .withOptionsProvider(new JUnitCucumberOptionsProvider())
+                .parse(clazz)
+                .build(propertiesFileOptions));
 
         // Next parse the junit options
         JUnitOptions junitPropertiesFileOptions = new JUnitOptionsParser()
@@ -181,11 +188,10 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
 
 
 
-    private static RuntimeOptions DEFAULT_RUNTIME_OPTIONS;
+    private static RuntimeOptions DEFAULT_RUNTIME_OPTIONS = buildRuntimeOptions(null);
 
     public static void setRuntimeOptions(RuntimeOptions runtimeOptions) {
         RUNTIME_OPTIONS.set(runtimeOptions);
-        DEFAULT_RUNTIME_OPTIONS = runtimeOptions;
     }
 
     public static RuntimeOptions currentRuntimeOptions() {
