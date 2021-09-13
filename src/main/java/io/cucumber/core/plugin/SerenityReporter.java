@@ -16,7 +16,7 @@ import io.cucumber.tagexpressions.Expression;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.core.SerenityListeners;
 import net.serenitybdd.core.SerenityReports;
-import net.serenitybdd.cucumber.CucumberWithSerenity;
+import net.serenitybdd.cucumber.CucumberWithSerenityRuntime;
 import net.serenitybdd.cucumber.formatting.ScenarioOutlineDescription;
 import net.serenitybdd.cucumber.util.PathUtils;
 import net.serenitybdd.cucumber.util.StepDefinitionAnnotationReader;
@@ -493,10 +493,10 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     }
 
     private List<Expression> getCucumberRuntimeTags() {
-        if (CucumberWithSerenity.currentRuntimeOptions() == null) {
+        if (CucumberWithSerenityRuntime.currentRuntimeOptions() == null) {
             return new ArrayList<>();
         } else {
-            return CucumberWithSerenity.currentRuntimeOptions().getTagExpressions();
+            return CucumberWithSerenityRuntime.currentRuntimeOptions().getTagExpressions();
         }
     }
 

@@ -1,4 +1,4 @@
-package io.cucumber.junit;
+package net.serenitybdd.cucumber;
 
 import io.cucumber.tagexpressions.Expression;
 

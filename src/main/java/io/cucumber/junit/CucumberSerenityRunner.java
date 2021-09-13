@@ -14,14 +14,13 @@ import io.cucumber.core.runtime.Runtime;
 import io.cucumber.core.runtime.*;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.tagexpressions.Expression;
+import net.serenitybdd.cucumber.CucumberWithSerenityRuntime;
 import net.serenitybdd.cucumber.SerenityOptions;
 import net.serenitybdd.cucumber.suiteslicing.CucumberSuiteSlicer;
 import net.serenitybdd.cucumber.suiteslicing.ScenarioFilter;
 import net.serenitybdd.cucumber.suiteslicing.TestStatistics;
 import net.serenitybdd.cucumber.suiteslicing.WeightedCucumberScenarios;
 import net.serenitybdd.cucumber.util.PathUtils;
-import net.serenitybdd.cucumber.util.Splitter;
-import net.thucydides.core.ThucydidesSystemProperty;
 import net.thucydides.core.guice.Injectors;
 import net.thucydides.core.steps.StepEventBus;
 import net.thucydides.core.util.EnvironmentVariables;
@@ -60,39 +59,12 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
 
     private List<ParentRunner<?>> children = new ArrayList<ParentRunner<?>>();
     private final EventBus bus;
-    private static ThreadLocal<RuntimeOptions> RUNTIME_OPTIONS = new ThreadLocal<>();
 
     private final List<Feature> features;
     private final Plugins plugins;
     private final CucumberExecutionContext context;
 
     private boolean multiThreadingAssumed = false;
-
-    private static RuntimeOptions buildRuntimeOptions(Function<RuntimeOptions, RuntimeOptions> configurer) {
-        RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser()
-                .parse(CucumberProperties.fromPropertiesFile())
-                .build();
-
-        RuntimeOptions annotationOptions = configurer != null ?
-        		configurer.apply(propertiesFileOptions) : propertiesFileOptions;
-
-        RuntimeOptions environmentOptions = new CucumberPropertiesParser()
-                .parse(CucumberProperties.fromEnvironment())
-                .build(annotationOptions);
-
-        RuntimeOptions runtimeOptions = new CucumberPropertiesParser()
-                .parse(CucumberProperties.fromSystemProperties())
-                .addDefaultSummaryPrinterIfAbsent()
-                .build(environmentOptions);
-
-        RuntimeOptionsBuilder runtimeOptionsBuilder = new RuntimeOptionsBuilder();
-        Collection<String> tagFilters = environmentSpecifiedTags(runtimeOptions.getTagExpressions());
-        for (String tagFilter : tagFilters) {
-            runtimeOptionsBuilder.addTagFilter(new LiteralExpression(tagFilter));
-        }
-        runtimeOptionsBuilder.build(runtimeOptions);
-        return runtimeOptions;
-    }
 
     /**
      * Constructor called by JUnit.
@@ -105,7 +77,7 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
         Assertions.assertNoCucumberAnnotatedMethods(clazz);
 
         // Parse the options early to provide fast feedback about invalid options
-        RuntimeOptions runtimeOptions = buildRuntimeOptions(
+        RuntimeOptions runtimeOptions = CucumberWithSerenityRuntime.buildRuntimeOptions(
         		propertiesFileOptions -> new CucumberOptionsAnnotationParser()
                 .withOptionsProvider(new JUnitCucumberOptionsProvider())
                 .parse(clazz)
@@ -131,7 +103,7 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
 
         this.bus = new TimeServiceEventBus(Clock.systemUTC(), UUID::randomUUID);
 
-        setRuntimeOptions(runtimeOptions);
+        CucumberWithSerenityRuntime.setRuntimeOptions(runtimeOptions);
 
         // Parse the features early. Don't proceed when there are lexer errors
         FeatureParser parser = new FeatureParser(bus::generateId);
@@ -187,62 +159,6 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
     }
 
 
-
-    private static RuntimeOptions DEFAULT_RUNTIME_OPTIONS = buildRuntimeOptions(null);
-
-    public static void setRuntimeOptions(RuntimeOptions runtimeOptions) {
-        RUNTIME_OPTIONS.set(runtimeOptions);
-    }
-
-    public static RuntimeOptions currentRuntimeOptions() {
-        return (RUNTIME_OPTIONS.get() != null) ? RUNTIME_OPTIONS.get() : DEFAULT_RUNTIME_OPTIONS;
-    }
-
-    private static Collection<String> environmentSpecifiedTags(List<?> existingTags) {
-        EnvironmentVariables environmentVariables = Injectors.getInjector().getInstance(EnvironmentVariables.class);
-        String tagsExpression = ThucydidesSystemProperty.TAGS.from(environmentVariables, "");
-        List<String> existingTagsValues = existingTags.stream().map(Object::toString).collect(toList());
-        return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(tagsExpression).stream()
-                .map(CucumberSerenityRunner::toCucumberTag).filter(t -> !existingTagsValues.contains(t)).collect(toList());
-    }
-
-    private static String toCucumberTag(String from) {
-        String tag = from.replaceAll(":", "=");
-        if (tag.startsWith("~@") || tag.startsWith("@")) {
-            return tag;
-        }
-        if (tag.startsWith("~")) {
-            return "~@" + tag.substring(1);
-        }
-
-        return "@" + tag;
-    }
-
-    public static Runtime createSerenityEnabledRuntime(/*ResourceLoader resourceLoader,*/
-            Supplier<ClassLoader> classLoaderSupplier,
-            RuntimeOptions runtimeOptions,
-            Configuration systemConfiguration) {
-        RuntimeOptionsBuilder runtimeOptionsBuilder = new RuntimeOptionsBuilder();
-        Collection<String> allTagFilters = environmentSpecifiedTags(runtimeOptions.getTagExpressions());
-        for (String tagFilter : allTagFilters) {
-            runtimeOptionsBuilder.addTagFilter(new LiteralExpression(tagFilter));
-        }
-        runtimeOptionsBuilder.build(runtimeOptions);
-        setRuntimeOptions(runtimeOptions);
-
-
-        EventBus bus = new TimeServiceEventBus(Clock.systemUTC(), UUID::randomUUID);
-        FeatureParser parser = new FeatureParser(bus::generateId);
-        FeaturePathFeatureSupplier featureSupplier = new FeaturePathFeatureSupplier(classLoaderSupplier, runtimeOptions, parser);
-
-        SerenityReporter serenityReporter = new SerenityReporter(systemConfiguration);
-        Runtime runtime = Runtime.builder().withClassLoader(classLoaderSupplier).withRuntimeOptions(runtimeOptions).
-                withAdditionalPlugins(serenityReporter).
-                withEventBus(bus).withFeatureSupplier(featureSupplier).
-                build();
-
-        return runtime;
-    }
 
     private static void addSerenityReporterPlugin(Plugins plugins, SerenityReporter plugin) {
         for (Plugin currentPlugin : plugins.getPlugins()) {
@@ -308,7 +224,7 @@ public class CucumberSerenityRunner extends ParentRunner<ParentRunner<?>> {
     public List<ParentRunner<?>> getChildren() {
         try {
             EnvironmentVariables environmentVariables = Injectors.getInjector().getInstance(EnvironmentVariables.class);
-            RuntimeOptions runtimeOptions = currentRuntimeOptions();
+            RuntimeOptions runtimeOptions = CucumberWithSerenityRuntime.currentRuntimeOptions();
             List<Expression> tagFilters = runtimeOptions.getTagExpressions();
             List<URI> featurePaths = runtimeOptions.getFeaturePaths();
             int batchNumber = environmentVariables.getPropertyAsInteger(SERENITY_BATCH_NUMBER, 1);
