@@ -8,7 +8,7 @@ import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow.TableCell;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario.Examples;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Tag;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.plugin.event.*;
@@ -32,7 +32,6 @@ import net.thucydides.core.webdriver.Configuration;
 import net.thucydides.core.webdriver.ThucydidesWebDriverSupport;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.junit.internal.AssumptionViolatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -896,7 +895,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
     }
 
     private boolean isAssumptionFailure(Throwable rootCause) {
-        return (AssumptionViolatedException.class.isAssignableFrom(rootCause.getClass()));
+        return ("org.junit.internal.AssumptionViolatedException".equals(rootCause.getClass().getCanonicalName()));
     }
 
     private String stepTitleFrom(Step currentStep, io.cucumber.plugin.event.TestStep testStep) {
