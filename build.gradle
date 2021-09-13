@@ -121,18 +121,16 @@ configurations.all {
 
 dependencies {
     compile("net.serenity-bdd:serenity-core:${serenityCoreVersion}")
-    compile("net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}")
-    compile("net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}")
+    compileOnly("net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}")
+    testCompile("net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}")
     compile "io.cucumber:cucumber-java:${cucumberJVMVersion}"
-    compile("io.cucumber:cucumber-junit:${cucumberJVMVersion}") {
+    implementation("io.cucumber:cucumber-junit:${cucumberJVMVersion}") {
         exclude group: "junit"
     }
-    compile "io.cucumber:datatable-matchers:${cucumberDatatableMatchers}"
+    testCompile "io.cucumber:datatable-matchers:${cucumberDatatableMatchers}"
 
-    compile("commons-logging:commons-logging:${commonsLoggingVersion}")
-    compile("org.apache.commons:commons-csv:${commonsCsvVersion}")
-    compile "junit:junit:${junitVersion}"
-    compile "com.google.code.gson:gson:${gsonVersion}"
+    implementation("org.apache.commons:commons-csv:${commonsCsvVersion}")
+    implementation "junit:junit:${junitVersion}"
 
     testCompile("ch.qos.logback:logback-classic:${logbackVersion}") {
         exclude module: "slf4j-api"
@@ -153,7 +151,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "Serenity Cucumber 5 Plugin",
+        attributes("Implementation-Title": "Serenity Cucumber 6 Plugin",
                    "Implementation-Version": project.version.toString())
     }
 }
