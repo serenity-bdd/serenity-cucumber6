@@ -8,7 +8,7 @@ import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow.TableCell;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario.Examples;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Tag;
-import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;;
+import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.Plugin;
 import io.cucumber.plugin.event.*;
@@ -805,7 +805,7 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
         } else if (Status.FAILED.equals(result.getStatus())) {
             failed(stepTitleFrom(currentStep, currentTestStep), result.getError());
         } else if (Status.SKIPPED.equals(result.getStatus())) {
-            getContext().stepEventBus().stepIgnored();
+            skipped(stepTitleFrom(currentStep, currentTestStep), result.getError());
         } else if (Status.PENDING.equals(result.getStatus())) {
             getContext().stepEventBus().stepPending();
         } else if (Status.UNDEFINED.equals(result.getStatus())) {
@@ -860,6 +860,20 @@ public class SerenityReporter implements Plugin, ConcurrentEventListener {
                 getContext().stepEventBus().assumptionViolated(rootCause.getMessage());
             } else {
                 getContext().stepEventBus().stepFailed(new StepFailure(ExecutedStepDescription.withTitle(normalized(currentStepTitle())), rootCause));
+            }
+        }
+    }
+
+    private void skipped(String stepTitle, Throwable cause) {
+        if (!errorOrFailureRecordedForStep(stepTitle, cause)) {
+            if (!isEmpty(stepTitle)) {
+                getContext().stepEventBus().updateCurrentStepTitle(stepTitle);
+            }
+            Throwable rootCause = new RootCauseAnalyzer(cause).getRootCause().toException();
+            if (isAssumptionFailure(rootCause)) {
+                getContext().stepEventBus().assumptionViolated(rootCause.getMessage());
+            } else {
+                getContext().stepEventBus().stepIgnored();
             }
         }
     }
